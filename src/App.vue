@@ -5,24 +5,45 @@
       <!-- ログイン時にはフォームとログアウトボタンを表示 -->
       <div v-if="user.uid" key="login">
         [{{ user.displayName }}]
-        <button type="button" @click="doLogout">ログアウト</button>
+        <button type="button" @click="doLogout">logout</button>
       </div>
       <!-- 未ログイン時にはログインボタンを表示 -->
       <div v-else key="logout">
-        <button type="button" @click="doLogin">ログイン</button>
+        <button type="button" @click="doLogin">login</button>
       </div>
     </header>
 
-    <!--　Firebase から取得したリストを描画（トランジション付き）　-->
+    <!--Firebase から取得したリストを描画(トランジション付き)-->
     <transition-group name="chat" tag="div" class="list content">
-      <section v-for="{ key, name, image, message } in chat" :key="key" class="item">
-        <div class="item-image"><img :src="image" width="40" height="40"></div>
-        <div class="item-detail">
-          <div class="item-name">{{ name }}</div>
-          <div class="item-message">
-            <nl2br tag="div" :text="message"/>
-          </div>
+      <section v-for="{uid, key, name, image, message } in chat" :key="key" class="item">
+        <!--自分の投稿-->
+        <div v-if="name == user.displayName">
+            <!--アイコン-->
+            <div class="item-right-image"><img :src="image" width="40" height="40"></div>
+              <div class="item-detail-right">
+                <!--名前-->
+                <div class="item-name-right">{{ name }}</div>
+                <!--メッセージ-->
+                <div class="item-message-right">
+                  <nl2br tag="div" :text="message"/>
+                </div>
+              </div>
         </div>
+        <!--他の人の投稿-->
+        <div v-else>
+          <!--アイコン-->
+          <div class="item-left-image"><img :src="image" width="40" height="40"></div>
+            <div class="item-detail-left">
+              <!--名前-->
+              <div class="item-name-left">{{ name }}</div>
+              <!--メッセージ-->
+              <div class="item-message-left">
+                <nl2br tag="div" :text="message"/>
+              </div>
+            </div>
+
+        </div>
+
       </section>
     </transition-group>
   
@@ -66,6 +87,7 @@ export default {
     })
   },
   methods: {
+
     // ログイン処理
     doLogin() {
       const provider = new firebase.auth.GoogleAuthProvider()
@@ -151,25 +173,35 @@ export default {
   align-items: flex-end;
   margin-bottom: 0.8em;
 }
-.item-image img {
+
+/***************相手側********** */
+
+.item-left-image img {
   border-radius: 20px;
   vertical-align: top;
 }
-.item-detail {
-  margin: 0 0 0 1.4em;
+/*自分の吹き出し */
+.item-detail-left{
+  margin: 0 0 1.4em 0;
+  display: flex;
+  flex-direction: row;
 }
-.item-name {
+
+.item-name-left {
   font-size: 75%;
 }
-.item-message {
+.item-message-left {
   position: relative;
-  display: inline-block;
+  /*display: inline-block;*/
+  display: row;
   padding: 0.8em;
   background: #deefe8;
   border-radius: 4px;
   line-height: 1.2em;
+  word-break: break-all;
 }
-.item-message::before {
+/*吹き出しの左*/ 
+.item-message-left::before {
   position: absolute;
   content: " ";
   display: block;
@@ -178,6 +210,46 @@ export default {
   border: 4px solid transparent;
   border-right: 12px solid #deefe8;
 }
+
+/***********************自分側**************** */
+/**アイコン */
+.item-right-image img {
+  border-radius: 20px;
+  vertical-align: top;
+  margin: 0 32em;
+}
+
+/*吹き出し */
+.item-detail-right{
+  margin: 0 30em 0 0;
+  display: flex;
+  flex-direction: row-reverse;
+}
+.item-name-right {
+  font-size: 75%;
+}
+.item-message-right {
+  position: relative;
+  /*display: inline-block;*/
+  display: row-reverse;
+  padding: 0.8em;
+  background: #deefe8;
+  border-radius: 4px;
+  line-height: 1.2em;
+
+  word-break: break-all;
+}
+/*吹き出しの右*/
+.item-message-right::before{
+  position: absolute;
+  content: " ";
+  display: block;
+  left: 100%;
+  bottom: 12px;
+  border: 4px solid transparent;
+  border-left: 12px solid #deefe8;
+}
+
 .send-button {
   height: 4em;
 }
