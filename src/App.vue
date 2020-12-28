@@ -58,6 +58,7 @@
   </div>
 </template>
 
+
 <script>
 // firebase モジュール
 import firebase from 'firebase'
@@ -79,10 +80,10 @@ export default {
       if (user) {
         this.chat = []
         // message に変更があったときのハンドラを登録
-        ref_message.limitToLast(10).on('child_added', this.childAdded)
+        ref_message.limitToLast(3).on('child_added', this.childAdded)
       } else {
         // message に変更があったときのハンドラを解除
-        ref_message.limitToLast(10).off('child_added', this.childAdded)
+        ref_message.limitToLast(3).off('child_added', this.childAdded)
       }
     })
   },
@@ -113,6 +114,7 @@ export default {
         image: message.image,
         message: message.message
       })
+
       this.scrollBottom()
     },
     doSend() {
@@ -126,6 +128,15 @@ export default {
           this.input = '' // フォームを空にする
         })
       }
+
+      //チャット画面のリフレッシュ
+      this.chat = []
+
+      //chatの上３つを表示
+      const ref_message = firebase.database().ref('message')
+      ref_message.limitToLast(3).on('child_added', this.childAdded)
+
+
     }
   }
 }
